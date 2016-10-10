@@ -69,9 +69,26 @@
 		from ${tablename};
 	</select>
 	
+	<!-- mixcolumn -->
+    
+    <!-- 复制表结构 -->
+    <update id="copyTableStructure"  parameterType="String" statementType="STATEMENT">
+    	create table ${new_table} like ${table}
+    </update>
+    
+    <!-- 复制表数据  -->
+    <insert id="copyTableData" parameterType="String">
+    	insert into ${new_table} select * from ${table}
+    </insert>
+    
+    <!-- update  -->
 	<update id="updateColumn" parameterType="String">  
-        update ${tablename}  set ${column} = #{value}  where id = #{id}  
+        update ${table}  set ${column} = #{value}  where id = #{id}  
     </update> 
+    
+    <select id="getAllData"  parameterType="String" resultType="Hashmap">
+    	select  id,${column} from ${table}  
+    </select>
 	
 	
 </mapper>

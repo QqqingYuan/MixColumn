@@ -12,6 +12,9 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.kejso.Mix.Mixture;
+import cn.kejso.Tool.Util;
+
 public class SqlUtil {
 	
 	private static Logger logger = LoggerFactory.getLogger(SqlUtil.class);
@@ -37,5 +40,7 @@ public class SqlUtil {
 	public static SqlSession getSession() {
 		return sessionFactory.openSession();
 	}
+
+
 	
 }
