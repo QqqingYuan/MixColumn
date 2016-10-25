@@ -2,7 +2,8 @@ package cn.kejso.Transform;
 
 import java.io.File;
 
-import cn.kejso.Mix.Mixture;
+import cn.kejso.Mix.Adjunction;
+import cn.kejso.Mix.Transform;
 import cn.kejso.Sql.Config;
 import cn.kejso.Tool.Util;
 
@@ -25,10 +26,10 @@ public class BuildTransform {
 		String jarpath=Config.prefix_jarfile+new File(jarfile).getAbsolutePath();
 
 		Config.setJdbc_config(jdbcconfig);
-		Mixture mixture=Util.getMixture(jdbcconfig,jarpath);
+		Transform mixture=Util.getTransform(jdbcconfig,jarpath);
 		
 		//transform single column
-		TransformFactory.transformSingleColumn(mixture);
+		MixFactory.transformSingleColumn(mixture);
 		
 	}
 }

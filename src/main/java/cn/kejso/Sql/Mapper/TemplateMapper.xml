@@ -76,7 +76,7 @@
     	create table ${new_table} like ${table}
     </update>
     
-    <!-- 复制表数据  -->
+    <!-- 复制表全部数据  -->
     <insert id="copyTableData" parameterType="String">
     	insert into ${new_table} select * from ${table}
     </insert>
@@ -90,5 +90,28 @@
     	select  id,${column} from ${table}  
     </select>
 	
+	<!-- 添加一列 -->
+    <update id="addColumn"  parameterType="String" statementType="STATEMENT">
+    	alter table ${table} add column ${column} varchar(255)
+    </update>
+    
+    <!-- 从副表向主表的column中复制数据 -->
+    <update id="copyDatatoColumn" parameterType="String">  
+        update ${key_table}  set 
+        <foreach collection="equals" item="equal" open="" close=""
+			separator=",">
+			${equal}
+		</foreach>  
+        where ${key_identity_column} = #{side_identity_value}  
+    </update> 
+    
+	<select id="getDataFromSideTable"  parameterType="String" resultType="Hashmap">
+    	select ${identity_column},
+    	<foreach collection="columns" item="column" open="" close=""
+			separator=",">
+			${column}
+		</foreach>  
+    	 from ${table}  
+    </select>
 	
 </mapper>

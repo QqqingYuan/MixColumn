@@ -36,4 +36,12 @@ public class Config {
 	// 获得所有数据
 	public static final String  getAllData="SqlMapper.TemplateMapper.getAllData";
 	
+	// 添加一列
+	public static final String  addColumn="SqlMapper.TemplateMapper.addColumn";
+	// 获得指定Column的所有数据
+	public static final String  getDataFromSideTable="SqlMapper.TemplateMapper.getDataFromSideTable";
+	// 添加一列
+	public static final String  copyDatatoColumn="SqlMapper.TemplateMapper.copyDatatoColumn";
+	
+	
 }

@@ -5,6 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -12,7 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import cn.kejso.AbstractTransform;
 import cn.kejso.Mix.Field;
-import cn.kejso.Mix.Mixture;
+import cn.kejso.Mix.Adjunction;
+import cn.kejso.Mix.Transform;
 import cn.kejso.Sql.Config;
 
 public class Util {
@@ -38,7 +43,7 @@ public class Util {
 	}
 	
 	// 读取jdbc中配置
-	public static  Mixture  getMixture(String jdbcfile,String jarfile) 
+	public static  Transform  getTransform(String jdbcfile,String jarfile) 
 	{
 		Properties prop = new Properties();
 		FileInputStream in;
@@ -53,7 +58,7 @@ public class Util {
 			return null;
 		}
 		
-		Mixture mix = new Mixture();
+		Transform mix = new Transform();
 		mix.setTable(prop.getProperty("mixcolumn.table").trim());
 		mix.setNew_table(prop.getProperty("mixcolumn.new_table").trim());
 		mix.setOriginalFields(new Field(prop.getProperty("mixcolumn.column").trim()));
@@ -64,4 +69,50 @@ public class Util {
 		return mix;
 		
 	}
+	
+	// 读取jdbc中配置
+	public static  Adjunction  getAdjunction(String jdbcfile,String jarfile) 
+	{
+		Properties prop = new Properties();
+		FileInputStream in;
+		try {
+			in = new FileInputStream(Config.getJdbc_config());
+			prop.load(in);
+		} catch (FileNotFoundException e) {
+			logger.warn("jdbc-file {} not found .",jdbcfile);
+			return null;
+		} catch (IOException e) {
+			logger.warn("jdbc-file {} not open .",jdbcfile);
+			return null;
+		}
+		
+		Adjunction ad = new Adjunction();
+		ad.setKey_table(prop.getProperty("mixcolumn.adjunction.key_table").trim());
+		ad.setSide_table(prop.getProperty("mixcolumn.adjunction.side_table").trim());
+		ad.setKey_identity_column(prop.getProperty("mixcolumn.adjunction.key_identity_column").trim());
+		ad.setSide_identity_column(prop.getProperty("mixcolumn.adjunction.side_identity_column").trim());
+		ad.setNew_key_table(prop.getProperty("mixcolumn.adjunction.new_key_table").trim());
+		
+		String add_columns=prop.getProperty("mixcolumn.adjunction.side_add_columns").trim();
+		ad.setSide_add_columns(Arrays.asList(add_columns.split(",")));
+		
+		return ad;
+		
+	}
+	
+	//构造赋值等式
+	public static List<String>  constructEquals(List<String> columns,Object identity)
+	{
+		List<String> equals=new ArrayList<String>();
+		
+		for(String column : columns)
+		{
+			String equal=column+" = "+ (String) ((HashMap<String,Object>)identity).get(column);
+			equals.add(equal);
+		}
+		
+		return equals;
+	}
+	
+	
 }

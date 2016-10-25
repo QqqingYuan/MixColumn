@@ -9,19 +9,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.kejso.AbstractTransform;
-import cn.kejso.Mix.Mixture;
+import cn.kejso.Mix.Adjunction;
+import cn.kejso.Mix.Transform;
 import cn.kejso.Sql.Config;
 import cn.kejso.Sql.SqlUtil;
+import cn.kejso.Tool.Util;
 
-public class TransformFactory {
+public class MixFactory {
 	
-	private static Logger logger = LoggerFactory.getLogger(TransformFactory.class);
+	private static Logger logger = LoggerFactory.getLogger(MixFactory.class);
 	
 	/*
 	 * transform single column 
 	 * 
 	 */
-	public static  int  transformSingleColumn(Mixture mixture)
+	public static  int  transformSingleColumn(Transform mixture)
 	{
 		String table=mixture.getTable();
 		String column=mixture.getOriginalFields().getName();
@@ -67,6 +69,55 @@ public class TransformFactory {
 		}
 		session.commit();
 		
+		session.close();
+		
+		return number;
+	}
+	
+	/*
+	 * Adjunction in two tables. 
+	 * 
+	 */
+	public static  int  AdjunctionTables(Adjunction ad)
+	{
+		
+		
+		SqlSession session=SqlUtil.getSession();
+		int number = 0;
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("table",ad.getKey_table());
+		
+		for(String column : ad.getSide_add_columns())
+		{
+			map.put("column",column);
+			// add column
+			session.update(Config.addColumn,map);
+		}
+		
+		session.commit();
+		
+		//copy data
+		map.clear();
+		map.put("table",ad.getSide_table());
+		map.put("identity_column",ad.getSide_identity_column());
+		map.put("columns", ad.getSide_add_columns());
+		List<Object> side_identitys= session.selectList(Config.getDataFromSideTable, map);
+		
+		for(Object identity:side_identitys)
+		{
+			String identity_value= (String) ((HashMap<String,Object>)identity).get(ad.getSide_identity_column());
+			map.clear();
+			List<String> equals=Util.constructEquals(ad.getSide_add_columns(), identity);
+			map.put("key_table",ad.getKey_table());
+			map.put("equals",equals);
+			map.put("key_identity_column",ad.getKey_identity_column());
+			map.put("side_identity_value",identity_value);
+			
+			session.update(Config.copyDatatoColumn,map);
+			number++;
+		}
+		session.commit();
 		session.close();
 		
 		return number;

@@ -12,7 +12,7 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.kejso.Mix.Mixture;
+import cn.kejso.Mix.Adjunction;
 import cn.kejso.Tool.Util;
 
 public class SqlUtil {
