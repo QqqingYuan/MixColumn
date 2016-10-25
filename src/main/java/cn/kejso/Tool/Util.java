@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
+import cn.kejso.Mix.AdjColumn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,6 +99,34 @@ public class Util {
 		
 		return ad;
 		
+	}
+
+	// 读取jdbc中配置
+	public static AdjColumn getAdjColumn(String jdbcfile, String jarfile)
+	{
+		Properties prop = new Properties();
+		FileInputStream in;
+		try {
+			in = new FileInputStream(Config.getJdbc_config());
+			prop.load(in);
+		} catch (FileNotFoundException e) {
+			logger.warn("jdbc-file {} not found .",jdbcfile);
+			return null;
+		} catch (IOException e) {
+			logger.warn("jdbc-file {} not open .",jdbcfile);
+			return null;
+		}
+
+		AdjColumn mix = new AdjColumn();
+		mix.setTable(prop.getProperty("mixcolumn.AdjColumn.table").trim());
+		mix.setNew_table(prop.getProperty("mixcolumn.AdjColumn.new_table").trim());
+		mix.setKey_column(new Field(prop.getProperty("mixcolumn.AdjColumn.key_column").trim()));
+		mix.setSide_column(new Field(prop.getProperty("mixcolumn.AdjColumn.side_column").trim()));
+		String classpath=prop.getProperty("mixcolumn.AdjColumn.transform").trim();
+		mix.setTransform(loadJar(classpath,jarfile));
+
+		return mix;
+
 	}
 	
 	//构造赋值等式

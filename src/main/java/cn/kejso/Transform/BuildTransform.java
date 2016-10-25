@@ -2,6 +2,7 @@ package cn.kejso.Transform;
 
 import java.io.File;
 
+import cn.kejso.Mix.AdjColumn;
 import cn.kejso.Mix.Adjunction;
 import cn.kejso.Mix.Transform;
 import cn.kejso.Sql.Config;
@@ -30,6 +31,14 @@ public class BuildTransform {
 		
 		//transform single column
 		MixFactory.transformSingleColumn(mixture);
+
+
+		////////combine two column
+//		AdjColumn adjcolumn=Util.getAdjColumn(jdbcconfig,jarpath);
+//
+//		//transform single column
+//		MixFactory.combineColumns(adjcolumn);
+
 		
 	}
 }

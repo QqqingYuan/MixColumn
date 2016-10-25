@@ -42,6 +42,8 @@ public class Config {
 	public static final String  getDataFromSideTable="SqlMapper.TemplateMapper.getDataFromSideTable";
 	// 添加一列
 	public static final String  copyDatatoColumn="SqlMapper.TemplateMapper.copyDatatoColumn";
+    // 删除一列
+	public static final String deleteColumn ="SqlMapper.TemplateMapper.deleteColumn";
 	
 	
 }
