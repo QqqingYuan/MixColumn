@@ -1,16 +1,17 @@
 package cn.kejso.Transform;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.kejso.Mix.AdjColumn;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.kejso.AbstractTransform;
 import cn.kejso.Mix.Adjunction;
+import cn.kejso.Mix.Field;
 import cn.kejso.Mix.Transform;
 import cn.kejso.Sql.Config;
 import cn.kejso.Sql.SqlUtil;
@@ -21,22 +22,34 @@ public class MixFactory {
 	private static Logger logger = LoggerFactory.getLogger(MixFactory.class);
 	
 	/*
-	 * transform single column 
+	 * transform  column 
 	 * 
 	 */
-	public static  int  transformSingleColumn(Transform mixture)
+	public static  int  transformColumn(Transform mixture)
 	{
 		String table=mixture.getTable();
-		String column=mixture.getOriginalFields().getName();
+		
+		List<Field> origincolumns=mixture.getOriginalFields();
+		
+		List<String> fields = new ArrayList<String>();
+		
+		for(Field one : origincolumns)
+		{
+			fields.add(one.getName());
+		}
+		
+		
 		String new_table=mixture.getNew_table();
-		AbstractTransform tran=mixture.getTransform();
+		
+		List<AbstractTransform> trans=mixture.getTransforms();
+		
 		SqlSession session=SqlUtil.getSession();
 		
 		int number = 0;
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("table",table);
-		map.put("column",column);
+		map.put("columns",fields);
 		
 		List<Object> urls = session.selectList(Config.getAllData, map);
 
@@ -53,15 +66,13 @@ public class MixFactory {
 		//update
 		Map<String, Object> update = new HashMap<String, Object>();
 		update.put("table",new_table);
-		update.put("column",column);
 		
 		for(Object one:urls)
 		{
-			String old_value= (String) ((HashMap<String,Object>)one).get(column);
+			List<String> equals=Util.constructEqualsUseTransform(fields, one, trans);
 			int id=(Integer) ((HashMap<String,Object>)one).get("id");
-			String new_value=tran.transform(old_value);
-			logger.info(old_value + " ---> {} ",new_value);
-			update.put("value",new_value);
+			
+			update.put("equals",equals);
 			update.put("id",id);
 			
 			session.update(Config.updateColumn, update);
@@ -86,9 +97,19 @@ public class MixFactory {
 		SqlSession session=SqlUtil.getSession();
 		int number = 0;
 		
+		logger.info("copy key_table {} to new_key_table {} .",ad.getKey_table(),ad.getNew_key_table());
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("table",ad.getKey_table());
+		map.put("new_table",ad.getNew_key_table());
 		
+		//copy table
+		session.update(Config.copyTableStructure,map);
+		session.update(Config.copyTableData,map);
+		session.commit();
+		
+		logger.info("add columns to new_key_table {} .",ad.getNew_key_table());
+		map.clear();
+		map.put("table",ad.getNew_key_table());
 		for(String column : ad.getSide_add_columns())
 		{
 			map.put("column",column);
@@ -110,7 +131,7 @@ public class MixFactory {
 			String identity_value= (String) ((HashMap<String,Object>)identity).get(ad.getSide_identity_column());
 			map.clear();
 			List<String> equals=Util.constructEquals(ad.getSide_add_columns(), identity);
-			map.put("key_table",ad.getKey_table());
+			map.put("key_table",ad.getNew_key_table());
 			map.put("equals",equals);
 			map.put("key_identity_column",ad.getKey_identity_column());
 			map.put("side_identity_value",identity_value);
@@ -125,67 +146,7 @@ public class MixFactory {
 	}
 
 
-	/***
-	 * Adjunction in to column
-	 * @param mixture
-	 * @return
-	 */
-	public static  int  combineColumns(AdjColumn mixture)
-	{
-		String table=mixture.getTable();
-		String keyColumn=mixture.getKey_column().getName();
-		String sideColumn=mixture.getSide_column().getName();
-		String new_table=mixture.getNew_table();
-		AbstractTransform tran=mixture.getTransform();
-		SqlSession session=SqlUtil.getSession();
-
-		int number = 0;
-
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("table",table);
-		map.put("column",keyColumn);
-		List<Object> col1 = session.selectList(Config.getAllData, map);
-		map.put("column",sideColumn);
-		List<Object> col2 = session.selectList(Config.getAllData, map);
-
-
-		Map<String, Object> create = new HashMap<String, Object>();
-		create.put("table",table);
-		create.put("new_table",new_table);
-
-		//copy table
-		session.update(Config.copyTableStructure,create);
-		session.update(Config.copyTableData,create);
-		session.commit();
-
-		//update
-		Map<String, Object> update = new HashMap<String, Object>();
-		update.put("table",new_table);
-		update.put("column",keyColumn);
-
-		for(int i=0;i<col1.size();i++)
-		{
-			String old_value1= (String) ((HashMap<String,Object>)col1.get(i)).get(keyColumn);
-			String old_value2= (String) ((HashMap<String,Object>)col2.get(i)).get(sideColumn);
-			int id=(Integer) ((HashMap<String,Object>)col1.get(i)).get("id");
-
-			String new_value=tran.transform(old_value1,old_value2);
-			logger.info(old_value1 +":"+old_value2+ " ---> {} ",new_value);
-			update.put("value",new_value);
-			update.put("id",id);
-
-			session.update(Config.updateColumn, update);
-			number++;
-
-		}
-		session.commit();
-		update.put("column",sideColumn);
-		session.update(Config.deleteColumn,update);
-
-		session.close();
-
-		return number;
-	}
+	
 
 
 }

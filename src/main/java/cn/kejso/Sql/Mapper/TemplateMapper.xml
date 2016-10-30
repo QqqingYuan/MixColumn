@@ -83,11 +83,21 @@
     
     <!-- update  -->
 	<update id="updateColumn" parameterType="String">  
-        update ${table}  set ${column} = #{value}  where id = #{id}  
+        update ${table}  set 
+        <foreach collection="equals" item="equal" open="" close=""
+			separator=",">
+			${equal}
+		</foreach>  
+        where id = ${id}  
     </update> 
     
     <select id="getAllData"  parameterType="String" resultType="Hashmap">
-    	select  id,${column} from ${table}  
+    	select  id,
+    	<foreach collection="columns" item="column" open="" close=""
+			separator=",">
+			${column}
+		</foreach>
+    	from ${table}  
     </select>
 	
 	<!-- 添加一列 -->
@@ -107,7 +117,7 @@
 			separator=",">
 			${equal}
 		</foreach>  
-        where ${key_identity_column} = #{side_identity_value}  
+        where ${key_identity_column} = "${side_identity_value}" 
     </update> 
     
 	<select id="getDataFromSideTable"  parameterType="String" resultType="Hashmap">

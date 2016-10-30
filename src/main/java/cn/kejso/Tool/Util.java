@@ -11,13 +11,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
-import cn.kejso.Mix.AdjColumn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.kejso.AbstractTransform;
 import cn.kejso.Mix.Field;
 import cn.kejso.Mix.Adjunction;
+import cn.kejso.Mix.MixType;
 import cn.kejso.Mix.Transform;
 import cn.kejso.Sql.Config;
 
@@ -43,6 +43,40 @@ public class Util {
 		return impl;
 	}
 	
+	
+	// 读取操作类型
+	public static  int  getMixType(String jdbcfile) 
+	{
+		Properties prop = new Properties();
+		FileInputStream in;
+		try {
+			in = new FileInputStream(Config.getJdbc_config());
+			prop.load(in);
+		} catch (FileNotFoundException e) {
+			logger.warn("jdbc-file {} not found .",jdbcfile);
+			return 0;
+		} catch (IOException e) {
+			logger.warn("jdbc-file {} not open .",jdbcfile);
+			return 0;
+		}
+		
+		String mixtype=prop.getProperty("mixcolumn.type").trim();
+		
+		if(mixtype.equals("adjunction"))
+		{
+			return MixType.adjunction;
+		}else if(mixtype.equals("transform"))
+		{
+			return MixType.transform;
+		}
+		
+		return 0;
+		
+	}
+	
+	
+	
+	
 	// 读取jdbc中配置
 	public static  Transform  getTransform(String jdbcfile,String jarfile) 
 	{
@@ -60,19 +94,35 @@ public class Util {
 		}
 		
 		Transform mix = new Transform();
-		mix.setTable(prop.getProperty("mixcolumn.table").trim());
-		mix.setNew_table(prop.getProperty("mixcolumn.new_table").trim());
-		mix.setOriginalFields(new Field(prop.getProperty("mixcolumn.column").trim()));
-		mix.setMappingFields(new Field(prop.getProperty("mixcolumn.column").trim()));
-		String classpath=prop.getProperty("mixcolumn.transform").trim();
-		mix.setTransform(loadJar(classpath,jarfile));
+		mix.setTable(prop.getProperty("mixcolumn.transform.table").trim());
+		mix.setNew_table(prop.getProperty("mixcolumn.transform.new_table").trim());
+		
+		List<String> columns= Arrays.asList(prop.getProperty("mixcolumn.transform.column").trim().split(","));
+		List<String> transforms = Arrays.asList(prop.getProperty("mixcolumn.transform.class").trim().split(","));
+		
+		List<AbstractTransform> trans = new ArrayList<AbstractTransform>();
+		List<Field> originalFields = new ArrayList<Field>();
+		
+		if (columns.size() == transforms.size())
+		{
+			for(int i=0;i<columns.size();i++)
+			{
+			
+				originalFields.add(new Field(columns.get(i)));
+				trans.add(loadJar(transforms.get(i),jarfile));
+			}
+			
+			mix.setOriginalFields(originalFields);
+			mix.setTransforms(trans);
+		}
+		
 		
 		return mix;
 		
 	}
 	
 	// 读取jdbc中配置
-	public static  Adjunction  getAdjunction(String jdbcfile,String jarfile) 
+	public static  Adjunction  getAdjunction(String jdbcfile) 
 	{
 		Properties prop = new Properties();
 		FileInputStream in;
@@ -101,34 +151,6 @@ public class Util {
 		
 	}
 
-	// 读取jdbc中配置
-	public static AdjColumn getAdjColumn(String jdbcfile, String jarfile)
-	{
-		Properties prop = new Properties();
-		FileInputStream in;
-		try {
-			in = new FileInputStream(Config.getJdbc_config());
-			prop.load(in);
-		} catch (FileNotFoundException e) {
-			logger.warn("jdbc-file {} not found .",jdbcfile);
-			return null;
-		} catch (IOException e) {
-			logger.warn("jdbc-file {} not open .",jdbcfile);
-			return null;
-		}
-
-		AdjColumn mix = new AdjColumn();
-		mix.setTable(prop.getProperty("mixcolumn.AdjColumn.table").trim());
-		mix.setNew_table(prop.getProperty("mixcolumn.AdjColumn.new_table").trim());
-		mix.setKey_column(new Field(prop.getProperty("mixcolumn.AdjColumn.key_column").trim()));
-		mix.setSide_column(new Field(prop.getProperty("mixcolumn.AdjColumn.side_column").trim()));
-		String classpath=prop.getProperty("mixcolumn.AdjColumn.transform").trim();
-		mix.setTransform(loadJar(classpath,jarfile));
-
-		return mix;
-
-	}
-	
 	//构造赋值等式
 	public static List<String>  constructEquals(List<String> columns,Object identity)
 	{
@@ -136,12 +158,31 @@ public class Util {
 		
 		for(String column : columns)
 		{
-			String equal=column+" = "+ (String) ((HashMap<String,Object>)identity).get(column);
+			String equal= column+" = "+"\""+(String) ((HashMap<String,Object>)identity).get(column)+"\"";
 			equals.add(equal);
 		}
 		
 		return equals;
 	}
 	
+	//构造赋值等式
+	public static List<String>  constructEqualsUseTransform(List<String> columns,Object identity,List<AbstractTransform> trans)
+	{
+		List<String> equals=new ArrayList<String>();
+		
+		if(columns.size() == trans.size())
+		{
+			for(int i=0;i<columns.size();i++)
+			{
+				String old_value = (String) ((HashMap<String,Object>)identity).get(columns.get(i));
+				String new_value = trans.get(i).transform(old_value);
+				logger.info(old_value + " ---> {} ",new_value);
+				String equal= columns.get(i)+" = "+"\""+new_value+"\"";
+				equals.add(equal);
+			}
+		}
+		
+		return equals;
+	}
 	
 }

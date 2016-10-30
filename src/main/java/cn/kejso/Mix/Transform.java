@@ -10,10 +10,9 @@ public class Transform {
 	private String table;
 	private String new_table;
 	// multi-column
-	private Field originalFields;
-	private Field mappingFields;
+	private List<Field> originalFields;
 	//transform
-	private AbstractTransform  transform;
+	private List<AbstractTransform>  transforms;
 	
 	public String getTable() {
 		return table;
@@ -21,30 +20,26 @@ public class Transform {
 	public void setTable(String table) {
 		this.table = table;
 	}
-	public Field getOriginalFields() {
-		return originalFields;
-	}
-	public void setOriginalFields(Field originalFields) {
-		this.originalFields = originalFields;
-	}
-	public Field getMappingFields() {
-		return mappingFields;
-	}
-	public void setMappingFields(Field mappingFields) {
-		this.mappingFields = mappingFields;
-	}
+	
 	public String getNew_table() {
 		return new_table;
 	}
 	public void setNew_table(String new_table) {
 		this.new_table = new_table;
 	}
-	public AbstractTransform getTransform() {
-		return transform;
+	public List<AbstractTransform> getTransforms() {
+		return transforms;
 	}
-	public void setTransform(AbstractTransform transform) {
-		this.transform = transform;
+	public void setTransforms(List<AbstractTransform> transforms) {
+		this.transforms = transforms;
 	}
+	public List<Field> getOriginalFields() {
+		return originalFields;
+	}
+	public void setOriginalFields(List<Field> originalFields) {
+		this.originalFields = originalFields;
+	}
+	
 	
 	
 
