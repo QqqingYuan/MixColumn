@@ -2,11 +2,26 @@
 
 清洗数据表
 
+## Introduction
+
+### Transform
+
+单表内列值变换。
+
+### Adjunction
+
+从一个表向另一个表添加列。
+
+### Merge
+
+单表内两列组合生成新列。
+
+
 ## Usage
 
 java -jar BuildMixColumn.jar  jdbc-config  [transform-jar-file] .
 
-## 配置文件
+## Configuration
 
 ```
 jdbc.driver=com.mysql.jdbc.Driver
