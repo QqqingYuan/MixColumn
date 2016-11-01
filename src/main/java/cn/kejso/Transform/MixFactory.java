@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import cn.kejso.AbstractTransform;
 import cn.kejso.Mix.Adjunction;
 import cn.kejso.Mix.Field;
+import cn.kejso.Mix.Merge;
 import cn.kejso.Mix.Transform;
 import cn.kejso.Sql.Config;
 import cn.kejso.Sql.SqlUtil;
@@ -140,6 +141,75 @@ public class MixFactory {
 			number++;
 		}
 		session.commit();
+		session.close();
+		
+		return number;
+	}
+	
+	
+	/*
+	 * merge  columns 
+	 * 
+	 */
+	
+	public static  int  mergeColumn(Merge mixture)
+	{
+		String table=mixture.getTable();
+		
+		List<String> columns=mixture.getColumns();
+		
+		
+		String new_table=mixture.getNew_table();
+		
+		String column_new = mixture.getColumn_new();
+		
+		AbstractTransform tran=mixture.getTransform();
+	
+		
+		SqlSession session=SqlUtil.getSession();
+		
+		int number = 0;
+		
+		//copy table
+		Map<String, Object> create = new HashMap<String, Object>();
+		create.put("table",table);
+		create.put("new_table",new_table);
+		session.update(Config.copyTableStructure,create);
+		session.update(Config.copyTableData,create);
+		session.commit();
+		
+		//add column
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("table",new_table);
+		map.put("column",column_new);
+		session.update(Config.addColumn,map);
+		session.commit();
+		
+		//get all data
+		map.clear();
+		map.put("table",new_table);
+		map.put("columns",columns);
+		List<Object> urls = session.selectList(Config.getAllData, map);
+
+		
+		//update
+		Map<String, Object> update = new HashMap<String, Object>();
+		update.put("table",new_table);
+		
+		for(Object one:urls)
+		{
+			List<String> equals=Util.constructEqualsForMerge(columns, column_new,one,tran);
+			int id=(Integer) ((HashMap<String,Object>)one).get("id");
+			
+			update.put("equals",equals);
+			update.put("id",id);
+			
+			session.update(Config.updateColumn, update);
+			number++;
+			
+		}
+		session.commit();
+		
 		session.close();
 		
 		return number;
