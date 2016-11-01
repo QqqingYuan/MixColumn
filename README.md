@@ -46,4 +46,11 @@ mixcolumn.adjunction.side_identity_column=url
 mixcolumn.adjunction.side_add_columns=coscholar,copapernum
 mixcolumn.adjunction.new_key_table=addtest2
 
+# merge
+mixcolumn.merge.table=scholarlist
+mixcolumn.merge.new_table=test
+mixcolumn.merge.columns=scholarname,colleage
+mixcolumn.merge.column_new=combine
+mixcolumn.merge.transform=test.combineFilter
+
 ```
