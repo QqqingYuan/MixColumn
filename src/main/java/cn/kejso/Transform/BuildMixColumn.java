@@ -3,6 +3,7 @@ package cn.kejso.Transform;
 import java.io.File;
 
 import cn.kejso.Mix.Adjunction;
+import cn.kejso.Mix.Merge;
 import cn.kejso.Mix.MixType;
 import cn.kejso.Mix.Transform;
 import cn.kejso.Sql.Config;
@@ -43,6 +44,11 @@ public class BuildMixColumn {
 				// add columns
 				Adjunction add=Util.getAdjunction(jdbcconfig);
 				MixFactory.AdjunctionTables(add);
+				break;
+			case MixType.merge:
+				// merge columns to create new column
+				Merge merge=Util.getMerge(jdbcconfig, jarpath);
+				MixFactory.mergeColumn(merge);
 				break;
 		}
 		

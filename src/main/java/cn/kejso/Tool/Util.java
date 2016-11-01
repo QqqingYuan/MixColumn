@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import cn.kejso.AbstractTransform;
 import cn.kejso.Mix.Field;
 import cn.kejso.Mix.Adjunction;
+import cn.kejso.Mix.Merge;
 import cn.kejso.Mix.MixType;
 import cn.kejso.Mix.Transform;
 import cn.kejso.Sql.Config;
@@ -68,6 +69,9 @@ public class Util {
 		}else if(mixtype.equals("transform"))
 		{
 			return MixType.transform;
+		}else if(mixtype.equals("merge"))
+		{
+			return MixType.merge;
 		}
 		
 		return 0;
@@ -150,6 +154,42 @@ public class Util {
 		return ad;
 		
 	}
+	
+	
+	// 读取jdbc中配置
+	public static  Merge  getMerge(String jdbcfile,String jarfile) 
+	{
+		Properties prop = new Properties();
+		FileInputStream in;
+		try {
+			in = new FileInputStream(Config.getJdbc_config());
+			prop.load(in);
+		} catch (FileNotFoundException e) {
+			logger.warn("jdbc-file {} not found .",jdbcfile);
+			return null;
+		} catch (IOException e) {
+			logger.warn("jdbc-file {} not open .",jdbcfile);
+			return null;
+		}
+		
+		Merge merge = new Merge();
+		merge.setTable(prop.getProperty("mixcolumn.merge.table").trim());
+		merge.setNew_table(prop.getProperty("mixcolumn.merge.new_table").trim());
+		
+		String columns=prop.getProperty("mixcolumn.merge.columns").trim();
+		merge.setColumns(Arrays.asList(columns.split(",")));
+		
+		merge.setColumn_new(prop.getProperty("mixcolumn.merge.column_new").trim());
+		
+		String trans = prop.getProperty("mixcolumn.merge.transform").trim();
+		AbstractTransform transform = loadJar(trans,jarfile);
+		merge.setTransform(transform);
+		
+		
+		return merge;
+		
+	}
+	
 
 	//构造赋值等式
 	public static List<String>  constructEquals(List<String> columns,Object identity)
@@ -165,7 +205,7 @@ public class Util {
 		return equals;
 	}
 	
-	//构造赋值等式
+	//构造赋值等式 , len(columns) = len(trans),一个column对应的transform
 	public static List<String>  constructEqualsUseTransform(List<String> columns,Object identity,List<AbstractTransform> trans)
 	{
 		List<String> equals=new ArrayList<String>();
@@ -175,7 +215,9 @@ public class Util {
 			for(int i=0;i<columns.size();i++)
 			{
 				String old_value = (String) ((HashMap<String,Object>)identity).get(columns.get(i));
-				String new_value = trans.get(i).transform(old_value);
+				List<String> columns_value=new ArrayList<String>();
+				columns_value.add(old_value);
+				String new_value = trans.get(i).transform(columns_value);
 				logger.info(old_value + " ---> {} ",new_value);
 				String equal= columns.get(i)+" = "+"\""+new_value+"\"";
 				equals.add(equal);
@@ -184,5 +226,30 @@ public class Util {
 		
 		return equals;
 	}
+	
+	
+	//构造赋值等式 , 多个column，使用一个transform生成一个新的column
+	public static List<String>  constructEqualsForMerge(List<String> columns,String column_new,Object identity,AbstractTransform tran)
+	{
+		List<String> equals=new ArrayList<String>();
+		
+		List<String> columns_value = new ArrayList<String>();
+		
+		for(String column:columns)
+		{
+			String old_value = (String) ((HashMap<String,Object>)identity).get(column);
+			columns_value.add(old_value);
+		}
+		
+		
+		String new_column_value = tran.transform(columns_value);
+		logger.info(" merge columns to ---> {} ",new_column_value);
+		String equal= column_new+" = "+"\""+new_column_value+"\"";
+		equals.add(equal);
+		
+		return equals;
+		
+	}
+	
 	
 }
