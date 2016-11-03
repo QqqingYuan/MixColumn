@@ -20,6 +20,7 @@ import cn.kejso.Mix.Adjunction;
 import cn.kejso.Mix.Merge;
 import cn.kejso.Mix.MixType;
 import cn.kejso.Mix.Transform;
+import cn.kejso.Mix.Union;
 import cn.kejso.Sql.Config;
 
 public class Util {
@@ -72,6 +73,9 @@ public class Util {
 		}else if(mixtype.equals("merge"))
 		{
 			return MixType.merge;
+		}else if(mixtype.equals("union"))
+		{
+			return MixType.union;
 		}
 		
 		return 0;
@@ -187,6 +191,33 @@ public class Util {
 		
 		
 		return merge;
+		
+	}
+	
+	
+	// 读取jdbc中配置
+	public static  Union  getUnion(String jdbcfile) 
+	{
+		Properties prop = new Properties();
+		FileInputStream in;
+		try {
+			in = new FileInputStream(Config.getJdbc_config());
+			prop.load(in);
+		} catch (FileNotFoundException e) {
+			logger.warn("jdbc-file {} not found .",jdbcfile);
+			return null;
+		} catch (IOException e) {
+			logger.warn("jdbc-file {} not open .",jdbcfile);
+			return null;
+		}
+		
+		Union union = new Union();
+		
+		union.setTableA(prop.getProperty("mixcolumn.union.tableA").trim());
+		union.setTableB(prop.getProperty("mixcolumn.union.tableB").trim());
+		union.setNew_table(prop.getProperty("mixcolumn.union.new_table").trim());
+		
+		return union;
 		
 	}
 	

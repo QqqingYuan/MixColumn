@@ -44,6 +44,10 @@ public class Config {
 	public static final String  copyDatatoColumn="SqlMapper.TemplateMapper.copyDatatoColumn";
     // 删除一列
 	public static final String deleteColumn ="SqlMapper.TemplateMapper.deleteColumn";
+	// union tables
+	public static final String unionTables = "SqlMapper.TemplateMapper.unionTables";
+	// 设置 id为主键
+	public static final String alterIdKey = "SqlMapper.TemplateMapper.alterIdKey";
 	
 	
 }

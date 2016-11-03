@@ -8,4 +8,6 @@ public class MixType {
 	
 	public static final int merge = 3;
 	
+	public static final int union = 4;
+	
 }

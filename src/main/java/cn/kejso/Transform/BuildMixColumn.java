@@ -6,6 +6,7 @@ import cn.kejso.Mix.Adjunction;
 import cn.kejso.Mix.Merge;
 import cn.kejso.Mix.MixType;
 import cn.kejso.Mix.Transform;
+import cn.kejso.Mix.Union;
 import cn.kejso.Sql.Config;
 import cn.kejso.Tool.Util;
 
@@ -23,7 +24,13 @@ public class BuildMixColumn {
 		
 		
 		String jdbcconfig=args[0];
-		String jarfile=args[1];
+		
+		String jarfile="";
+		if(args.length == 2)
+		{
+			jarfile=args[1];
+		}
+		
 
 		String jarpath=Config.prefix_jarfile+new File(jarfile).getAbsolutePath();
 
@@ -49,6 +56,11 @@ public class BuildMixColumn {
 				// merge columns to create new column
 				Merge merge=Util.getMerge(jdbcconfig, jarpath);
 				MixFactory.mergeColumn(merge);
+				break;
+			case MixType.union:
+				// union tables
+				Union union=Util.getUnion(jdbcconfig);
+				MixFactory.unionTables(union);
 				break;
 		}
 		

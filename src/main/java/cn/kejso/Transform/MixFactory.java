@@ -14,6 +14,7 @@ import cn.kejso.Mix.Adjunction;
 import cn.kejso.Mix.Field;
 import cn.kejso.Mix.Merge;
 import cn.kejso.Mix.Transform;
+import cn.kejso.Mix.Union;
 import cn.kejso.Sql.Config;
 import cn.kejso.Sql.SqlUtil;
 import cn.kejso.Tool.Util;
@@ -208,6 +209,42 @@ public class MixFactory {
 			number++;
 			
 		}
+		session.commit();
+		
+		session.close();
+		
+		return number;
+	}
+	
+	
+	/*
+	 * union tables
+	 * 
+	 */
+	
+	public static  int  unionTables(Union mixture)
+	{
+		String tableA=mixture.getTableA();
+		String tableB=mixture.getTableB();
+		
+		String new_table=mixture.getNew_table();
+		
+		SqlSession session=SqlUtil.getSession();
+		
+		int number = 0;
+		
+		//union tables
+		Map<String, Object> create = new HashMap<String, Object>();
+		create.put("new_table",new_table);
+		create.put("tableA",tableA);
+		create.put("tableB",tableB);
+		session.update(Config.unionTables,create);
+		session.commit();
+		
+		//alterIdKey
+		create.clear();
+		create.put("table",new_table);
+		session.update(Config.alterIdKey,create);
 		session.commit();
 		
 		session.close();

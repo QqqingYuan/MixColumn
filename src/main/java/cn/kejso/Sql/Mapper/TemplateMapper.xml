@@ -128,5 +128,14 @@
 		</foreach>  
     	 from ${table}  
     </select>
+    
+    <!--union tables  -->
+	<update id="unionTables" parameterType="String">
+		create table ${new_table} as select * from ${tableA} union select * from ${tableB}
+	</update>
 	
+	<!--alter id to primary key -->
+	<update id="alterIdKey" parameterType="String">
+		alter table ${table} add constraint pkid primary key (id)
+	</update>
 </mapper>
