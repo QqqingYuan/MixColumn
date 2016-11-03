@@ -12,12 +12,12 @@
 
 ```JAVA
 
-  public class myCombine implements AbstractTransform {
+  public class myTransform implements AbstractTransform {
 	    @Override
 	    public String transform(List<String> values) {
               //第1个值为column_content
               String value = values.get(0);
-		          .....
+	      .....
 	    }
   }
   
@@ -35,12 +35,12 @@
 组合操作需要实现AbstractTransform接口。
 
 ```java
-  public class myTransform implements AbstractTransform {
+  public class myCombine implements AbstractTransform {
 	    @Override
 	    public String transform(List<String> values) {
               //第i个值为传入的第i个column的值
               String value_i = values.get(i-1);
-		          .....
+	      .....
 	    }
   }
 
@@ -50,6 +50,8 @@
 ## Usage
 
 java -jar BuildMixColumn.jar  jdbc-config  [transform-jar-file] .
+
+Adjunction操作不使用 transform-jar-file .
 
 ## Configuration
 
