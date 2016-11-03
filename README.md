@@ -17,7 +17,7 @@
 	    public String transform(List<String> values) {
               //第1个值为column_content
               String value = values.get(0);
-	      .....
+	      		.....
 	    }
   }
   
@@ -40,7 +40,7 @@
 	    public String transform(List<String> values) {
               //第i个值为传入的第i个column的值
               String value_i = values.get(i-1);
-	      .....
+	      		.....
 	    }
   }
 
