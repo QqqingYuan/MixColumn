@@ -14,6 +14,8 @@ public class Config {
 	public static String   prefix_jarfile="file:///";
 	
 	private static String  Jdbc_config;
+	
+	public  static String  database_name;
 		
 	
 	public static String getJdbc_config() {
@@ -44,10 +46,25 @@ public class Config {
 	public static final String  copyDatatoColumn="SqlMapper.TemplateMapper.copyDatatoColumn";
     // 删除一列
 	public static final String deleteColumn ="SqlMapper.TemplateMapper.deleteColumn";
-	// union tables
-	public static final String unionTables = "SqlMapper.TemplateMapper.unionTables";
-	// 设置 id为主键
-	public static final String alterIdKey = "SqlMapper.TemplateMapper.alterIdKey";
+	
+	//获得列名称
+	public static final String getColumns = "SqlMapper.TemplateMapper.getColumns";
+	//插入实体
+	public static final String insertEntity = "SqlMapper.TemplateMapper.insertEntity";
+	
+	//drop id
+	public static final String dropID = "SqlMapper.TemplateMapper.dropID";
+	//add id
+	public static final String addID = "SqlMapper.TemplateMapper.addID";
+	//primary id
+	public static final String primaryID = "SqlMapper.TemplateMapper.primaryID";
+	
+	//add table
+	public static final String addTable = "SqlMapper.TemplateMapper.addTable";
+	//delete table
+	public static final String deleteTable = "SqlMapper.TemplateMapper.deleteTable";
+	//rename table
+	public static final String renameTable = "SqlMapper.TemplateMapper.renameTable";
 	
 	
 }

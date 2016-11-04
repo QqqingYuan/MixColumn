@@ -233,19 +233,60 @@ public class MixFactory {
 		
 		int number = 0;
 		
-		//union tables
+		//copy tableA
 		Map<String, Object> create = new HashMap<String, Object>();
-		create.put("new_table",new_table);
-		create.put("tableA",tableA);
-		create.put("tableB",tableB);
-		session.update(Config.unionTables,create);
+		create.put("table",tableA);
+		create.put("new_table",tableA+"_tmp");
+		session.update(Config.copyTableStructure,create);
+		session.update(Config.copyTableData,create);
+		/*
+		// drop id
+		create.clear();
+		create.put("table",tableA+"_tmp");
+		session.update(Config.dropID,create);
+		session.commit();
+		*/
+		
+		//copy tableB
+		create.clear();
+		create.put("table",tableB);
+		create.put("new_table",tableB+"_tmp");
+		session.update(Config.copyTableStructure,create);
+		session.update(Config.copyTableData,create);
+		/*
+		// drop id
+		create.clear();
+		create.put("table",tableB+"_tmp");
+		session.update(Config.dropID,create);
+		session.commit();	
+		*/
+		
+		//add table
+		create.clear();
+		create.put("tableA",tableA+"_tmp");
+		create.put("tableB",tableB+"_tmp");
+		session.update(Config.addTable,create);
 		session.commit();
 		
-		//alterIdKey
+		// delete table
+		create.clear();
+		create.put("table",tableB+"_tmp");
+		session.update(Config.deleteTable,create);
+		session.commit();
+		
+		//rename table 
+		create.clear();
+		create.put("old_name",tableA+"_tmp");
+		create.put("new_name",new_table);
+		session.update(Config.renameTable,create);
+		session.commit();
+		//add primary id
 		create.clear();
 		create.put("table",new_table);
-		session.update(Config.alterIdKey,create);
+		session.update(Config.addID,create);
+		session.update(Config.primaryID,create);
 		session.commit();
+		
 		
 		session.close();
 		

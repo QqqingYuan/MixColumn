@@ -33,41 +33,6 @@
 		UNIQUE KEY ${uniqueField} (${uniqueField}) USING HASH
 		)
 	</update>
-
-	<!-- 获得所有url字段 -->
-	<select id="getAllUrl" resultType="String">
-		select distinct ${url}
-		from ${tablename}
-		order by id ASC
-	</select>
-
-
-	<!-- 获取新增的url字段 -->
-
-
-	<!-- 获取最后一条记录的ID -->
-	<select id="getLastId" resultType="Integer">
-		select id
-		from ${tablename} order by id desc limit 1;
-	</select>
-
-	<!-- 获取最后一条记录的某一属性 -->
-	<select id="getLastRecordField" resultType="String">
-		select ${field}
-		from ${tablename} order by id desc limit 1;
-	</select>
-
-	<!-- 获取具有特定属性记录的ID -->
-	<select id="getCertainId" resultType="Integer">
-		select id
-		from ${tablename} where ${field} = #{fieldvalue} LIMIT 1;
-	</select>
-	
-	<!-- 获取记录条数 -->
-	<select id="getRecordNum" resultType="Integer">
-		select count(*)
-		from ${tablename};
-	</select>
 	
 	<!-- mixcolumn -->
     
@@ -129,13 +94,34 @@
     	 from ${table}  
     </select>
     
-    <!--union tables  -->
-	<update id="unionTables" parameterType="String">
-		create table ${new_table} as select * from ${tableA} union select * from ${tableB}
+    <select id="getColumns"  parameterType="String" resultType="Hashmap">
+    	select COLUMN_NAME from information_schema.COLUMNS where table_name='${table}' and table_schema='${database}'
+    </select>
+    
+    <!-- reset id -->
+    <update id="dropID" parameterType="String">
+		alter table  ${table} drop id 
 	</update>
 	
-	<!--alter id to primary key -->
-	<update id="alterIdKey" parameterType="String">
-		alter table ${table} add constraint pkid primary key (id)
+	<update id="addID" parameterType="String">
+		alter table  ${table} add id int(11) NOT NULL first
 	</update>
+	
+	<update id="primaryID" parameterType="String">
+		alter table  ${table} MODIFY COLUMN  id int(11) NOT NULL AUTO_INCREMENT,ADD PRIMARY  KEY(id)
+	</update>
+    
+    <update id="addTable" parameterType="String">
+		 insert ignore into ${tableA} select  *  from ${tableB};
+	</update>
+	
+	 <update id="deleteTable" parameterType="String">
+		 drop table if exists ${table}
+	</update>
+	
+	 <update id="renameTable" parameterType="String">
+		 rename table ${old_name} to ${new_name}
+	</update>
+	
+   
 </mapper>

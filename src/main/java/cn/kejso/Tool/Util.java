@@ -62,6 +62,9 @@ public class Util {
 			return 0;
 		}
 		
+		// set database name
+		// Config.database_name = prop.getProperty("jdbc.url").trim();
+		
 		String mixtype=prop.getProperty("mixcolumn.type").trim();
 		
 		if(mixtype.equals("adjunction"))

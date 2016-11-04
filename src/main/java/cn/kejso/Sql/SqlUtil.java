@@ -3,6 +3,10 @@ package cn.kejso.Sql;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.ibatis.io.Resources;
@@ -40,7 +44,29 @@ public class SqlUtil {
 	public static SqlSession getSession() {
 		return sessionFactory.openSession();
 	}
-
-
+	
+	//获得一个表的所有列
+	public static List<String> getColumns(SqlSession session , String table , String database) {
+		
+		List<String> columns = new ArrayList<String>();
+		
+		Map<String, Object> create = new HashMap<String, Object>();
+		create.put("table",table);
+		create.put("database",database);
+		
+		List<Object> data = session.selectList(Config.getColumns, create);
+		for(Object one : data)
+		{
+			columns.add((String) ((HashMap<String,Object>)one).get("COLUMN_NAME"));
+		}
+		
+		// delete id
+		if(columns.contains("id"))
+		{
+			columns.remove(columns.indexOf("id"));
+		}
+		
+		return columns;
+	}
 	
 }
