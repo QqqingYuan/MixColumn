@@ -48,7 +48,7 @@
 
 ### Union
 
-合并两张结构相同的表，并去重。
+合并两张结构相同的表，并去重。两张表不带主键。
 
 
 ## Usage
@@ -93,6 +93,7 @@ mixcolumn.merge.column_new=combine
 mixcolumn.merge.transform=test.combineFilter
 
 # union
+# union的两张表不带主键
 mixcolumn.union.tableA=paper_copy
 mixcolumn.union.tableB=papercontent_copy
 mixcolumn.union.new_table=test2
