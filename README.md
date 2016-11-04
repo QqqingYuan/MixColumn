@@ -46,6 +46,10 @@
 
 ```
 
+### Union
+
+合并两张结构相同的表，并去重。
+
 
 ## Usage
 
@@ -87,5 +91,10 @@ mixcolumn.merge.new_table=test
 mixcolumn.merge.columns=scholarname,colleage
 mixcolumn.merge.column_new=combine
 mixcolumn.merge.transform=test.combineFilter
+
+# union
+mixcolumn.union.tableA=paper_copy
+mixcolumn.union.tableB=papercontent_copy
+mixcolumn.union.new_table=test2
 
 ```
